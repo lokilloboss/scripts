@@ -1,27 +1,27 @@
 #!/bin/bash
 
-# Define el comando que se ejecutará en cada instancia
-COMMAND="echo 'Hola, mundo!'"
+# Define the command to be executed on each instance
+COMMAND="echo 'Hello, world!'"
 
-# Define un arreglo con las instancias
+# Define an array of instances
 INSTANCES=("192.168.0.1" "192.168.0.2" "192.168.0.3")
 
-# Define el archivo donde se guardará la salida de la ejecución
+# Define the file where the output of the execution will be saved
 OUTPUT_FILE="output.txt"
 
-# Recorre el arreglo de instancias y ejecuta el comando en cada una de ellas
+# Loop through the array of instances and execute the command on each one
 for INSTANCE in "${INSTANCES[@]}"
 do
-  # Verifica si la instancia está disponible
+  # Check if the instance is available
   if ping -c 1 $INSTANCE &> /dev/null
   then
-    # La instancia está disponible, así que ejecuta el comando
-    echo "Ejecutando comando en la instancia $INSTANCE..."
+    # The instance is available, so execute the command
+    echo "Executing command on instance $INSTANCE..."
     ssh user@$INSTANCE "$COMMAND" >> $OUTPUT_FILE
   else
-    # La instancia no está disponible, así que muestra un mensaje de error
-    echo "Error: la instancia $INSTANCE no está disponible."
+    # The instance is not available, so display an error message
+    echo "Error: instance $INSTANCE is not available."
   fi
 done
 
-echo "¡Listo! La salida de la ejecución se guardó en el archivo $OUTPUT_FILE."
+echo "Done! The output of the execution was saved in the file $OUTPUT_FILE."

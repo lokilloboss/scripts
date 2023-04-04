@@ -1,0 +1,1 @@
+grep '123:stack/stack-1231231.*"value":"i-11231231' archivo.csv | sed -n 's/.*stack-\(.*\).*"value":"i-\(.*\)".*/\1,\2/p' > nuevo_archivo.csv

@@ -2,9 +2,11 @@
 
 # Define the command to be executed on each instance
 COMMAND="echo 'Hello, world!'"
+#COMMAND=$(amsopscli -a ##### ssm ec2 repair-pbis --instance-id $INSTANCES) >> $OUTPUT_FILE
 
 # Define an array of instances
 INSTANCES=("192.168.0.1" "192.168.0.2" "192.168.0.3")
+#INSTANCES=$(cat infoinstancesCustomer.txt)
 
 # Define the file where the output of the execution will be saved
 OUTPUT_FILE="output.txt"
@@ -14,6 +16,7 @@ for INSTANCE in "${INSTANCES[@]}"
 do
   # Check if the instance is available
   if ping -c 1 $INSTANCE &> /dev/null
+  #aws ec2 describe-instance-status --instance-id $INSTANCE
   then
     # The instance is available, so execute the command
     echo "Executing command on instance $INSTANCE..."

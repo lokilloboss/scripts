@@ -32,7 +32,7 @@ Resources:
   MyRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: "my-role-name"
+      RoleName: "MyRoleName"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -52,21 +52,17 @@ Resources:
                 Resource: "*"
   EC2Instance:
     Type: "AWS::EC2::Instance"
-    DependsOn:
-      - MyRole
     Properties:
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
       NetworkInterfaces:
-      - DeviceIndex: "0"
-        SubnetId: !Ref SubnetId
-        GroupSet:
-          - !Ref SecurityGroupId
+        - DeviceIndex: "0"
+          SubnetId: !Ref SubnetId
+          GroupSet:
+            - !Ref SecurityGroupId
       Tags:
         - Key: "auto-delete"
           Value: "no"
         - Key: "owner"
           Value: "aguilar"
-      IamInstanceProfile:
-        Name: !GetAtt MyRole.Arn

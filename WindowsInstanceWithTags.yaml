@@ -1,0 +1,47 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation template to create a Windows EC2 instance"
+Parameters:
+  KeyName:
+    Description: "Name of an existing EC2 KeyPair to enable SSH access to the instance"
+    Type: "AWS::EC2::KeyPair::KeyName"
+    ConstraintDescription: "must be the name of an existing EC2 KeyPair."
+  InstanceType:
+    Description: "EC2 instance type"
+    Type: "String"
+    Default: "t2.micro"
+    AllowedValues:
+      - "t2.micro"
+      - "t2.small"
+      - "t2.medium"
+      - "t2.large"
+    ConstraintDescription: "must be a valid EC2 instance type."
+  AMI:
+    Description: "Windows Server 2019 AMI ID"
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-Base"
+  SubnetId:
+    Description: "ID of an existing subnet in which to launch the instance"
+    Type: "AWS::EC2::Subnet::Id"
+    ConstraintDescription: "must be the ID of an existing subnet."
+  SecurityGroupId:
+    Description: "ID of an existing security group to associate with the instance"
+    Type: "AWS::EC2::SecurityGroup::Id"
+    ConstraintDescription: "must be the ID of an existing security group."
+Resources:
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      NetworkInterfaces:
+      - DeviceIndex: "0"
+        SubnetId: !Ref SubnetId
+        GroupSet:
+          - !Ref SecurityGroupId
+      Tags:
+        - Key: "auto-delete"
+          Value: "no"
+        - Key: "owner"
+          Value: "aguilar"

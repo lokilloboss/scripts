@@ -184,3 +184,78 @@ foreach ($service in $services) {
 }
 
 
+====
+
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateSet('Start', 'Stop')]
+    [string]$Action,
+
+    [Parameter(Mandatory=$true, Position=1)]
+    [ValidateScript({ Test-Path $_ -PathType Leaf -ErrorAction Ignore })]
+    [string]$FilePath,
+
+    [Parameter(Mandatory=$false, Position=2)]
+    [string]$ComputerName = $env:COMPUTERNAME,
+
+    [Parameter(Mandatory=$false)]
+    [ValidateSet('Manual', 'Automatic', 'Disabled')]
+    [string]$StartupType
+)
+
+# If a startup type was specified, validate it
+if ($StartupType) {
+    if ($StartupType -ne 'Manual' -and $StartupType -ne 'Automatic' -and $StartupType -ne 'Disabled') {
+        Write-Host "Invalid startup type specified: $StartupType" -ForegroundColor Red
+        return
+    }
+}
+
+# Obtener la lista de servicios desde el archivo especificado
+$services = Get-Content -Path $FilePath
+
+# Si no se especificó un archivo, usar el arreglo predeterminado
+if (!$services) {
+    $services = @('Service1', 'Service2', 'Service3')
+}
+
+foreach ($service in $services) {
+    $status = Get-Service -Name $service -ComputerName $ComputerName -ErrorAction SilentlyContinue
+
+    if ($status) {
+        if ($status.Status -eq "Running" -and ${Action} -eq [Microsoft.PowerShell.Commands.ServiceControllerStatus]::Running) {
+            Write-Host "$service is already running on $ComputerName"
+        }
+        elseif ($status.Status -eq "Stopped" -and ${Action} -eq [Microsoft.PowerShell.Commands.ServiceControllerStatus]::Stopped) {
+            Write-Host "$service is already stopped on $ComputerName"
+        }
+        else {
+            Write-Host "$Action-ning $service on $ComputerName ..."
+
+            try {
+                # Set the startup type if specified
+                if ($StartupType) {
+                    Set-Service -Name $service -StartupType $StartupType -ComputerName $ComputerName -ErrorAction Stop
+                }
+
+                # Start or stop the service
+                if (${Action} -eq [Microsoft.PowerShell.Commands.ServiceControllerStatus]::Running) {
+                    Start-Service -Name $service -ComputerName $ComputerName -ErrorAction Stop
+                }
+                else {
+                    Stop-Service -Name $service -ComputerName $ComputerName -ErrorAction Stop
+                }
+
+                Write-Host "$service has been $Action-ed on $ComputerName"
+
+            }
+            catch {
+                Write-Host "Error $Action-ing $service on $ComputerName : $_" -ForegroundColor Red
+            }
+        }
+    }
+    else {
+        Write-Host "Could not get status for $service on $ComputerName" -ForegroundColor Red
+    }
+}

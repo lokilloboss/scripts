@@ -29,8 +29,31 @@ Parameters:
     Type: "AWS::EC2::SecurityGroup::Id"
     ConstraintDescription: "must be the ID of an existing security group."
 Resources:
+  MyRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "my-role-name"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "MyPolicyName"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                Resource: "*"
   EC2Instance:
     Type: "AWS::EC2::Instance"
+    DependsOn:
+      - MyRole
     Properties:
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
@@ -45,3 +68,5 @@ Resources:
           Value: "no"
         - Key: "owner"
           Value: "aguilar"
+      IamInstanceProfile:
+        Name: !GetAtt MyRole.Arn

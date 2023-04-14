@@ -1,0 +1,24 @@
+This PowerShell script uses the Microsoft.PowerShell.Management module to start or stop one or more services on a local machine. The script takes the following input parameters:
+
+Action (Mandatory): Indicates whether the script should start or stop the specified services. This parameter accepts only two values: "Start" or "Stop".
+ApprovedServices (Mandatory): An array of service names that the script should start or stop. If a service name is not valid, the script will return an error.
+StartupType (Optional): Indicates the startup type for the services. This parameter accepts only three values: "Manual", "Automatic", or "Disabled". If this parameter is not specified, the script will not change the startup type of the services.
+Force (Optional): Indicates whether the script should force the service to start or stop. If this parameter is specified, the script will stop the service before starting it or start the service before stopping it.
+The script first retrieves the name of the local machine using the COMPUTERNAME environment variable. It then uses the ForEach-Object method to loop through each of the approved services and perform the specified action.
+
+For each service, the script retrieves the current status of the service using the Get-Service cmdlet. If the service exists, the script checks if the service is running or stopped and if the requested action matches the current status.
+
+If the service is already running and the requested action is "Start", the script will check if the Force parameter is specified. If the Force parameter is not specified, the script will return an exit code of 3 and skip the service. If the Force parameter is specified, the script will stop the service before starting it.
+
+If the service is already stopped and the requested action is "Stop", the script will check if the Force parameter is specified. If the Force parameter is not specified, the script will return an exit code of 4 and skip the service. If the Force parameter is specified, the script will start the service before stopping it.
+
+If the service is not running and the requested action is "Start" or if the service is running and the requested action is "Stop", the script will check if the Force parameter and StartupType parameter are specified. If both parameters are specified, the script will set the startup type of the service before starting or stopping it.
+
+The script will then attempt to start or stop the service using the Start-Service or Stop-Service cmdlet. If the operation is successful, the script will return an exit code of 0. If an error occurs, the script will return an exit code of 5 and display an error message.
+
+In addition to exit code 0 and 5, the script can return the following exit codes:
+
+Exit code 1: Indicates that the script encountered an unknown error.
+Exit code 2: Indicates that the specified service does not exist on the local machine.
+Exit code 3: Indicates that the specified service is already running and the Force parameter is not specified.
+Exit code 4: Indicates that the specified service is already stopped and the Force parameter is not specified.
